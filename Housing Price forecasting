@@ -1,37 +1,50 @@
-from pandas import read_excel
+pip install pandas keras numpy
 
-#importing dataset
-df = read_excel("/content/Assignment 2_BUSI 651_House Prices.xls")
+import pandas as pd
+
+# Load data
+df = pd.read_excel("data/Assignment 2_BUSI 651_House Prices.xls")
+
+# Define target variable and features
 y = df["SalePrice"]
-x=df[["GarageCars","GarageArea","OverallQual","GrLivArea"]]
+x = df[["GarageCars", "GarageArea", "OverallQual", "GrLivArea"]]
 
-#cross-validation
-y_train = y [0:1168]
-y_test = y [1168:]
-x_train = x [0:1168]
-x_test = x [1168:]
+# Split data into training and testing sets
+y_train = y[:1168]
+y_test = y[1168:]
+x_train = x[:1168]
+x_test = x[1168:]
 
 #training
 from keras.models import Sequential
-from keras.layers import Dense, Activation
-Bmodel = Sequential()
-Bmodel.add( Dense(32,activation = "relu", input_dim = 4)) #dense connection means that every input is connected to all the neurons
-Bmodel.add( Dense(32, activation="relu"))
-Bmodel.add( Dense(1)) #output layer
-Bmodel.compile(loss = "mean_squared_error", optimizer="adam")
-Bmodel.fit(x_train, y_train, epochs = 100000, verbose=0)
+from keras.layers import Dense
 
-#Prediction
-y_pred = Bmodel.predict(x_test)
+# Build model
+model = Sequential([
+    Dense(32, activation="relu", input_dim=4),
+    Dense(32, activation="relu"),
+    Dense(1)  # Output layer
+])
 
-#Model evaluation
-import numpy
-y_test_1= y_test.to_numpy()
+# Compile model
+model.compile(loss="mean_squared_error", optimizer="adam")
+
+# Train model
+model.fit(x_train, y_train, epochs=100000, verbose=0)
+
+import numpy as np
+
+# Predict on test data
+y_pred = model.predict(x_test)
+
+# Convert test and predicted values to numpy arrays
+y_test_1 = y_test.to_numpy()
 y_pred_1 = y_pred.reshape(1, 292)
-APE= abs(numpy.subtract(y_test_1, y_pred_1)) / y_test_1 * 100
-MAPE= numpy.mean(APE)
-MAPE
-a=df["GarageArea"].mean()
+
+# Calculate MAPE
+APE = np.abs(np.subtract(y_test_1, y_pred_1)) / y_test_1 * 100
+MAPE = np.mean(APE)
+print("Mean Absolute Percentage Error (MAPE):", MAPE)
 
 #Prediction
 Bmodel.predict([[2,472.8,6.01,1515.5]])
